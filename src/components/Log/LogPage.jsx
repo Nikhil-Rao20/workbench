@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Filter, Calendar, Clock, Tag } from 'lucide-react';
+import { Plus, Trash2, Filter, Calendar, Clock, Tag, Pencil } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { last7DayKeys, todayKey, dayOfWeekLabel, minToHHMM, dateToKey } from '../../utils/time';
 import { TIME_BLOCKS } from '../../data/schedule';
@@ -13,7 +13,7 @@ const pageVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-function LogEntryCard({ entry, project, block, onDelete }) {
+function LogEntryCard({ entry, project, block, onDelete, onEdit, isToday }) {
   return (
     <motion.div
       layout
@@ -54,12 +54,24 @@ function LogEntryCard({ entry, project, block, onDelete }) {
         <span className="font-mono text-sm font-bold text-emerald-400">
           {minToHHMM(entry.durationMinutes)}
         </span>
-        <button
-          onClick={() => onDelete(entry.id)}
-          className="text-[var(--text-muted)] hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
-        >
-          <Trash2 size={13} />
-        </button>
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+          {isToday && (
+            <button
+              onClick={() => onEdit(entry)}
+              className="text-[var(--text-muted)] hover:text-indigo-400 transition-colors"
+              title="Edit"
+            >
+              <Pencil size={13} />
+            </button>
+          )}
+          <button
+            onClick={() => onDelete(entry.id)}
+            className="text-[var(--text-muted)] hover:text-rose-400 transition-colors"
+            title="Delete"
+          >
+            <Trash2 size={13} />
+          </button>
+        </div>
       </div>
     </motion.div>
   );
@@ -71,6 +83,7 @@ export default function LogPage() {
   const [filterBlock, setFilterBlock] = useState('');
   const [filterProject, setFilterProject] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [editEntry, setEditEntry] = useState(null);
 
   const dayLogs = state.logs[selectedDate] || [];
 
@@ -225,6 +238,8 @@ export default function LogPage() {
                       project={project}
                       block={block}
                       onDelete={handleDelete}
+                      onEdit={setEditEntry}
+                      isToday={selectedDate === todayKey()}
                     />
                   );
                 })}
@@ -236,6 +251,13 @@ export default function LogPage() {
 
       <AnimatePresence>
         {showAdd && <AddEntryModal onClose={() => setShowAdd(false)} />}
+        {editEntry && (
+          <AddEntryModal
+            onClose={() => setEditEntry(null)}
+            editEntry={editEntry}
+            editDateKey={selectedDate}
+          />
+        )}
       </AnimatePresence>
     </motion.div>
   );

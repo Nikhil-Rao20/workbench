@@ -14,6 +14,7 @@ const pageVariants = {
 
 function ProjectCard({ project, totalMinutes, onEdit, onDelete }) {
   const primaryCatKey = project.categories?.[0] || project.category || 'other';
+  const status = project.status || (project.active === false ? 'inactive' : 'active');
   const urgency = isUrgent(project.deadline);
   const deadlineText = deadlineRelative(project.deadline);
   const cats = (project.categories || (project.category ? [project.category] : ['other']))
@@ -47,9 +48,14 @@ function ProjectCard({ project, totalMinutes, onEdit, onDelete }) {
           <h3 className="text-sm font-bold text-[var(--text-primary)] leading-tight truncate">
             {project.name}
           </h3>
-          {!project.active && (
+          {status === 'completed' && (
+            <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded-full shrink-0">
+              ✓ Done
+            </span>
+          )}
+          {status === 'inactive' && (
             <span className="text-[9px] text-[var(--text-muted)] bg-white/[0.06] px-1.5 py-0.5 rounded-full shrink-0">
-              Inactive
+              Archived
             </span>
           )}
         </div>
@@ -92,14 +98,18 @@ function ProjectCard({ project, totalMinutes, onEdit, onDelete }) {
           </span>
         </div>
 
-        {deadlineText && (
+        {status === 'completed' ? (
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-400 bg-emerald-400/10">
+            ✓ Completed{project.completedAt ? ` · ${project.completedAt}` : ''}
+          </span>
+        ) : deadlineText ? (
           <span className={clsx(
             'text-[10px] font-semibold px-2 py-0.5 rounded-full',
             urgency ? 'text-rose-400 bg-rose-400/10' : 'text-amber-400 bg-amber-400/10'
           )}>
             {deadlineText}
           </span>
-        )}
+        ) : null}
       </div>
 
       {/* Tags */}
@@ -134,7 +144,8 @@ export default function ProjectsPage() {
   }, {});
 
   const filtered = state.projects.filter(p => {
-    if (!showInactive && !p.active) return false;
+    const pStatus = p.status || (p.active === false ? 'inactive' : 'active');
+    if (!showInactive && pStatus === 'inactive') return false;
     const projCats = p.categories || (p.category ? [p.category] : []);
     if (filterCat && !projCats.includes(filterCat)) return false;
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -202,7 +213,7 @@ export default function ProjectsPage() {
               : 'border-white/[0.08] text-[var(--text-muted)] hover:border-white/[0.15]'
           )}
         >
-          {showInactive ? 'Hide inactive' : 'Show inactive'}
+          {showInactive ? 'Hide archived' : 'Show archived'}
         </button>
       </div>
 

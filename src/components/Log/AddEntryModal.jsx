@@ -1,23 +1,25 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Pencil } from 'lucide-react';
 import { useApp, addLogForDate } from '../../context/AppContext';
 import { TIME_BLOCKS } from '../../data/schedule';
 import { todayKey, generateId } from '../../utils/time';
 import { format } from 'date-fns';
 
-export default function AddEntryModal({ onClose, prefillBlock = null, prefillProject = null }) {
+// editEntry: existing log object to edit (null = add mode)
+export default function AddEntryModal({ onClose, prefillBlock = null, prefillProject = null, editEntry = null, editDateKey = null }) {
   const { state, dispatch } = useApp();
   const activeProjects = state.projects.filter(p => p.active);
   const trackableBlocks = TIME_BLOCKS.filter(b => b.trackable);
+  const isEditMode = !!editEntry;
 
   const [form, setForm] = useState({
-    blockId: prefillBlock || trackableBlocks[0]?.id || '',
-    projectId: prefillProject || '',
-    taskName: '',
-    notes: '',
-    durationMinutes: '',
-    dateKey: todayKey(),
+    blockId: editEntry?.blockId || prefillBlock || trackableBlocks[0]?.id || '',
+    projectId: editEntry?.projectId || prefillProject || '',
+    taskName: editEntry?.taskName || '',
+    notes: editEntry?.notes || '',
+    durationMinutes: editEntry?.durationMinutes || '',
+    dateKey: editDateKey || todayKey(),
   });
   const [errors, setErrors] = useState({});
 
@@ -33,13 +35,30 @@ export default function AddEntryModal({ onClose, prefillBlock = null, prefillPro
   const handleSubmit = () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
-    addLogForDate(dispatch, form.dateKey, {
-      blockId: form.blockId,
-      projectId: form.projectId || null,
-      taskName: form.taskName || 'Work session',
-      notes: form.notes,
-      durationMinutes: Number(form.durationMinutes),
-    });
+    if (isEditMode) {
+      dispatch({
+        type: 'EDIT_LOG',
+        payload: {
+          dateKey: editDateKey,
+          id: editEntry.id,
+          updates: {
+            blockId: form.blockId,
+            projectId: form.projectId || null,
+            taskName: form.taskName || 'Work session',
+            notes: form.notes,
+            durationMinutes: Number(form.durationMinutes),
+          },
+        },
+      });
+    } else {
+      addLogForDate(dispatch, form.dateKey, {
+        blockId: form.blockId,
+        projectId: form.projectId || null,
+        taskName: form.taskName || 'Work session',
+        notes: form.notes,
+        durationMinutes: Number(form.durationMinutes),
+      });
+    }
     onClose();
   };
 
@@ -61,23 +80,25 @@ export default function AddEntryModal({ onClose, prefillBlock = null, prefillPro
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-bold text-[var(--text-primary)]">Add Log Entry</h2>
+          <h2 className="text-base font-bold text-[var(--text-primary)]">{isEditMode ? 'Edit Log Entry' : 'Add Log Entry'}</h2>
           <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
             <X size={18} />
           </button>
         </div>
 
         <div className="space-y-4">
-          {/* Date */}
-          <div>
-            <label className="input-label">Date</label>
-            <input
-              type="date"
-              value={form.dateKey}
-              onChange={e => set('dateKey', e.target.value)}
-              className="input-field"
-            />
-          </div>
+          {/* Date — hidden in edit mode since entry date is fixed */}
+          {!isEditMode && (
+            <div>
+              <label className="input-label">Date</label>
+              <input
+                type="date"
+                value={form.dateKey}
+                onChange={e => set('dateKey', e.target.value)}
+                className="input-field"
+              />
+            </div>
+          )}
 
           {/* Block */}
           <div>
@@ -153,8 +174,8 @@ export default function AddEntryModal({ onClose, prefillBlock = null, prefillPro
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="btn-secondary flex-1 justify-center">Cancel</button>
           <button onClick={handleSubmit} className="btn-primary flex-1 justify-center">
-            <Plus size={15} />
-            Add Entry
+            {isEditMode ? <Pencil size={15} /> : <Plus size={15} />}
+            {isEditMode ? 'Save Changes' : 'Add Entry'}
           </button>
         </div>
       </motion.div>

@@ -96,6 +96,19 @@ function reducer(state, action) {
       };
     }
 
+    case 'EDIT_LOG': {
+      const { dateKey, id, updates } = action.payload;
+      return {
+        ...state,
+        logs: {
+          ...state.logs,
+          [dateKey]: (state.logs[dateKey] || []).map(e =>
+            e.id === id ? { ...e, ...updates } : e
+          ),
+        },
+      };
+    }
+
     // ── Movie days ──
     case 'TOGGLE_MOVIE_DAY': {
       const key = action.payload;

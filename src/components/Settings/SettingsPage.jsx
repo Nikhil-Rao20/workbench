@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Moon, Sun, Download, Trash2, RefreshCw, ExternalLink, Github, LogOut, BookOpen, Microscope, Brain, Dumbbell } from 'lucide-react';
+import { Bell, Moon, Sun, Download, Trash2, RefreshCw, LogOut, BookOpen, Microscope, Brain, Dumbbell } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { clearAll } from '../../utils/storage';
@@ -229,20 +229,6 @@ export default function SettingsPage() {
               </select>
             }
           />
-        </Section>
-
-        {/* Deployment */}
-        <Section title="GitHub Pages Deployment">
-          <div className="text-xs text-[var(--text-muted)] space-y-2 leading-relaxed">
-            <p>To deploy to GitHub Pages:</p>
-            <ol className="space-y-1.5 ml-3 list-decimal list-outside">
-              <li>Create a GitHub repo named <code className="bg-white/[0.07] px-1.5 py-0.5 rounded font-mono text-indigo-300">personal-tracker</code></li>
-              <li>Update <code className="bg-white/[0.07] px-1.5 py-0.5 rounded font-mono text-indigo-300">vite.config.js</code> base to <code className="bg-white/[0.07] px-1.5 py-0.5 rounded font-mono text-indigo-300">/personal-tracker/</code></li>
-              <li>Update the <code className="bg-white/[0.07] px-1.5 py-0.5 rounded font-mono text-indigo-300">homepage</code> in package.json</li>
-              <li>Run <code className="bg-white/[0.07] px-1.5 py-0.5 rounded font-mono text-indigo-300">npm run deploy</code></li>
-            </ol>
-            <p className="mt-2 text-indigo-400">Your site will be live at: <strong>https://&lt;username&gt;.github.io/personal-tracker/</strong></p>
-          </div>
         </Section>
 
         {/* Data */}

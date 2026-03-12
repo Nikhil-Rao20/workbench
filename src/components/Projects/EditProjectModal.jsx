@@ -25,7 +25,7 @@ export default function EditProjectModal({ project = null, onClose }) {
     deadline: project?.deadline || '',
     description: project?.description || '',
     tags: project?.tags?.join(', ') || '',
-    active: project?.active ?? true,
+    status: project?.status || (project?.active === false ? 'inactive' : 'active'),
   });
   const [errors, setErrors] = useState({});
 
@@ -48,6 +48,10 @@ export default function EditProjectModal({ project = null, onClose }) {
       deadline: form.deadline || null,
       description: form.description.trim(),
       tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+      active: form.status === 'active',
+      completedAt: form.status === 'completed'
+        ? (project?.completedAt || new Date().toISOString().split('T')[0])
+        : null,
     };
     // Remove legacy single-category field if it existed
     delete data.category;
@@ -189,20 +193,30 @@ export default function EditProjectModal({ project = null, onClose }) {
             />
           </div>
 
-          {/* Active toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/[0.05]">
-            <span className="text-sm font-medium text-[var(--text-secondary)]">Active project</span>
-            <button
-              onClick={() => set('active', !form.active)}
-              className={`w-10 h-5.5 rounded-full transition-colors relative ${form.active ? 'bg-indigo-500' : 'bg-white/10'}`}
-              style={{ height: '22px', width: '40px' }}
-            >
-              <motion.div
-                animate={{ x: form.active ? 18 : 2 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute top-[3px] w-4 h-4 bg-white rounded-full shadow"
-              />
-            </button>
+          {/* Status */}
+          <div>
+            <label className="input-label">Status</label>
+            <div className="flex gap-2 mt-1.5">
+              {[
+                { value: 'active',    label: '⚡ Active',     color: '#6366f1' },
+                { value: 'completed', label: '✓ Completed',   color: '#10b981' },
+                { value: 'inactive',  label: '📦 Archived',   color: '#64748b' },
+              ].map(s => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => set('status', s.value)}
+                  className="flex-1 py-2 rounded-xl text-xs font-semibold border transition-all"
+                  style={{
+                    color: form.status === s.value ? s.color : 'var(--text-muted)',
+                    backgroundColor: form.status === s.value ? `${s.color}15` : 'transparent',
+                    borderColor: form.status === s.value ? `${s.color}55` : 'var(--border)',
+                  }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
