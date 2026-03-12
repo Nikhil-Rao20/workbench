@@ -106,6 +106,7 @@ function TargetCard({ label, icon: Icon, actual, target, color, met }) {
 
 export default function DayAnalysisPage() {
   const { state } = useApp();
+  const targets = state.targets || DAILY_TARGETS;
   const [selectedKey, setSelectedKey] = useState(todayKey());
 
   const navigate = (delta) => {
@@ -137,10 +138,10 @@ export default function DayAnalysisPage() {
   );
   const totalMinutes = totalGate + totalResearch + totalConceptual + totalExercise;
 
-  const gateOk  = totalGate      >= DAILY_TARGETS.gate;
-  const resOk   = totalResearch   >= DAILY_TARGETS.research;
-  const concOk  = totalConceptual >= DAILY_TARGETS.conceptual;
-  const exOk    = totalExercise   >= DAILY_TARGETS.exercise;
+  const gateOk  = totalGate      >= targets.gate;
+  const resOk   = totalResearch   >= targets.research;
+  const concOk  = totalConceptual >= targets.conceptual;
+  const exOk    = totalExercise   >= targets.exercise;
   const targetsMetCount = [gateOk, resOk, concOk, exOk].filter(Boolean).length;
   const allMet = targetsMetCount === 4;
 
@@ -189,10 +190,10 @@ export default function DayAnalysisPage() {
     : friendlyDate(keyToDate(selectedKey));
 
   const TARGETS_CONFIG = [
-    { label: 'GATE',       icon: BookOpen,    actual: totalGate,       target: DAILY_TARGETS.gate,       color: '#f59e0b',  met: gateOk },
-    { label: 'Research',   icon: Microscope,  actual: totalResearch,   target: DAILY_TARGETS.research,   color: '#4b7bec',  met: resOk  },
-    { label: 'Conceptual', icon: Brain,       actual: totalConceptual, target: DAILY_TARGETS.conceptual, color: '#06b6d4',  met: concOk },
-    { label: 'Exercise',   icon: Dumbbell,    actual: totalExercise,   target: DAILY_TARGETS.exercise,   color: '#10b981',  met: exOk   },
+    { label: 'GATE',       icon: BookOpen,    actual: totalGate,       target: targets.gate,       color: '#f59e0b',  met: gateOk },
+    { label: 'Research',   icon: Microscope,  actual: totalResearch,   target: targets.research,   color: '#4b7bec',  met: resOk  },
+    { label: 'Conceptual', icon: Brain,       actual: totalConceptual, target: targets.conceptual, color: '#06b6d4',  met: concOk },
+    { label: 'Exercise',   icon: Dumbbell,    actual: totalExercise,   target: targets.exercise,   color: '#10b981',  met: exOk   },
   ];
 
   return (

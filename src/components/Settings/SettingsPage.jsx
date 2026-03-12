@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Moon, Sun, Download, Trash2, RefreshCw, ExternalLink, Github, LogOut } from 'lucide-react';
+import { Bell, Moon, Sun, Download, Trash2, RefreshCw, ExternalLink, Github, LogOut, BookOpen, Microscope, Brain, Dumbbell } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { clearAll } from '../../utils/storage';
+import { DAILY_TARGETS } from '../../data/schedule';
 import clsx from 'clsx';
 
 const pageVariants = {
@@ -108,6 +109,50 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-4">
+        {/* Daily Targets */}
+        <Section title="Daily Targets">
+          <p className="text-xs text-[var(--text-muted)] mb-4 leading-relaxed">
+            Minimum daily goals used in Day Report &amp; Analytics. Enter values in minutes.
+          </p>
+          {[
+            { key: 'gate',       label: 'GATE Prep',   icon: BookOpen,   color: '#f59e0b' },
+            { key: 'research',   label: 'Research',    icon: Microscope, color: '#4b7bec' },
+            { key: 'conceptual', label: 'Conceptual',  icon: Brain,      color: '#06b6d4' },
+            { key: 'exercise',   label: 'Exercise',    icon: Dumbbell,   color: '#22c55e' },
+          ].map(({ key, label, icon: Icon, color }) => {
+            const val = state.targets?.[key] ?? DAILY_TARGETS[key];
+            const hrs = Math.floor(val / 60);
+            const mins = val % 60;
+            return (
+              <div key={key} className="flex items-center justify-between gap-4 py-3 border-b border-white/[0.05] last:border-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}18` }}>
+                    <Icon size={13} style={{ color }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      {hrs > 0 ? `${hrs}h ` : ''}{mins > 0 ? `${mins}m` : hrs === 0 ? '0m' : ''} per day
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={720}
+                    step={5}
+                    value={val}
+                    onChange={e => dispatch({ type: 'SET_TARGETS', payload: { [key]: Math.max(0, Math.min(720, Number(e.target.value))) } })}
+                    className="input-field text-sm py-1.5 w-20 text-center"
+                  />
+                  <span className="text-[10px] text-[var(--text-muted)] shrink-0">min</span>
+                </div>
+              </div>
+            );
+          })}
+        </Section>
+
         {/* Appearance */}
         <Section title="Appearance">
           <Row

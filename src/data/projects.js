@@ -103,10 +103,10 @@ export const DEFAULT_PROJECTS = [
 
 // Project category metadata
 export const PROJECT_CATEGORIES = {
-  hackathon: { label: 'Hackathon', color: '#4b7bec', bg: 'rgba(75,123,236,0.12)' },
-  research:  { label: 'Research',  color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' },
-  paper:     { label: 'Paper',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-  challenge: { label: 'Challenge', color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
-  exam:      { label: 'Exam',      color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-  other:     { label: 'Other',     color: '#6b7280', bg: 'rgba(107,114,128,0.12)' },
+  hackathon: { label: 'Hackathon',         color: '#4b7bec', bg: 'rgba(75,123,236,0.12)'  },
+  research:  { label: 'Research',           color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)'  },
+  paper:     { label: 'Paper',              color: '#f59e0b', bg: 'rgba(245,158,11,0.12)'  },
+  technical: { label: 'Technical Project',  color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)'  },
+  exam:      { label: 'Exam',               color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
+  other:     { label: 'Other',              color: '#6b7280', bg: 'rgba(107,114,128,0.12)' },
 };

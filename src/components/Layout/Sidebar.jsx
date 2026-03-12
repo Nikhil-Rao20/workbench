@@ -14,8 +14,8 @@ const NAV_ITEMS = [
   { to: '/timer',     icon: Timer,           label: 'Timer'     },
   { to: '/log',       icon: BookOpen,        label: 'Log'       },
   { to: '/projects',  icon: FolderKanban,    label: 'Projects'  },
-  { to: '/analytics', icon: BarChart3,       label: 'Analytics' },
   { to: '/day',       icon: CalendarDays,    label: 'Day Report'},
+  { to: '/analytics', icon: BarChart3,       label: 'Analytics' },
   { to: '/settings',  icon: Settings,        label: 'Settings'  },
 ];
 

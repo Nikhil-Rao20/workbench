@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../firebase';
 import { DEFAULT_PROJECTS } from '../data/projects';
+import { DAILY_TARGETS } from '../data/schedule';
 import { getItem, setItem } from '../utils/storage';
 import { generateId, todayKey } from '../utils/time';
 
@@ -21,6 +22,7 @@ const INITIAL_STATE = {
     permission: 'default',
     warningMinutes: 10,
   },
+  targets: { ...DAILY_TARGETS }, // editable daily minimum targets (minutes)
   sidebarCollapsed: false,
 };
 
@@ -122,6 +124,13 @@ function reducer(state, action) {
         notifications: { ...state.notifications, ...action.payload },
       };
 
+    // ── Daily targets ──
+    case 'SET_TARGETS':
+      return {
+        ...state,
+        targets: { ...(state.targets || DAILY_TARGETS), ...action.payload },
+      };
+
     default:
       return state;
   }
@@ -162,9 +171,9 @@ export function AppProvider({ children }) {
 
   // ── Persist to localStorage (always, even offline) ────────────────────────
   useEffect(() => {
-    const { theme, projects, logs, movieDays, conceptualType, notifications } = state;
-    setItem('app_state', { theme, projects, logs, movieDays, conceptualType, notifications });
-  }, [state.theme, state.projects, state.logs, state.movieDays, state.conceptualType, state.notifications]);
+    const { theme, projects, logs, movieDays, conceptualType, notifications, targets } = state;
+    setItem('app_state', { theme, projects, logs, movieDays, conceptualType, notifications, targets });
+  }, [state.theme, state.projects, state.logs, state.movieDays, state.conceptualType, state.notifications, state.targets]);
 
   // ── Debounced Firestore sync ──────────────────────────────────────────────
   useEffect(() => {
@@ -172,17 +181,17 @@ export function AppProvider({ children }) {
     debounceRef.current = setTimeout(async () => {
       if (!syncEnabledRef.current || !userUidRef.current) return;
       try {
-        const { theme, projects, logs, movieDays, conceptualType, notifications } = state;
+        const { theme, projects, logs, movieDays, conceptualType, notifications, targets } = state;
         await setDoc(
           doc(db, 'users', userUidRef.current, 'data', 'appState'),
-          { theme, projects, logs, movieDays, conceptualType, notifications }
+          { theme, projects, logs, movieDays, conceptualType, notifications, targets }
         );
       } catch (err) {
         console.warn('Firestore sync failed (offline?):', err.message);
       }
     }, 1500);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [state.theme, state.projects, state.logs, state.movieDays, state.conceptualType, state.notifications]);
+  }, [state.theme, state.projects, state.logs, state.movieDays, state.conceptualType, state.notifications, state.targets]);
 
   // ── Apply theme class to <html> ───────────────────────────────────────────
   useEffect(() => {
