@@ -1,4 +1,7 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef, useState } from 'react';
+import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db, googleProvider } from '../firebase';
 import { DEFAULT_PROJECTS } from '../data/projects';
 import { getItem, setItem } from '../utils/storage';
 import { generateId, todayKey } from '../utils/time';
@@ -127,22 +130,61 @@ function reducer(state, action) {
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const [user, setUser] = useState(undefined); // undefined=loading, null=signed out
+  const syncEnabledRef = useRef(false);
+  const userUidRef = useRef(null);
+  const debounceRef = useRef(null);
 
-  // Hydrate from localStorage on mount
+  // ── Auth state + initial Firestore load ───────────────────────────────────
   useEffect(() => {
-    const saved = getItem('app_state', null);
-    if (saved) {
-      dispatch({ type: 'HYDRATE', payload: saved });
-    }
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      syncEnabledRef.current = false;
+      setUser(u);
+      if (u) {
+        userUidRef.current = u.uid;
+        try {
+          const snap = await getDoc(doc(db, 'users', u.uid, 'data', 'appState'));
+          const payload = snap.exists() ? snap.data() : (getItem('app_state', null) || {});
+          dispatch({ type: 'HYDRATE', payload });
+        } catch {
+          const local = getItem('app_state', null);
+          if (local) dispatch({ type: 'HYDRATE', payload: local });
+        }
+        // Enable sync after hydration settles
+        setTimeout(() => { syncEnabledRef.current = true; }, 200);
+      } else {
+        userUidRef.current = null;
+        dispatch({ type: 'HYDRATE', payload: INITIAL_STATE });
+      }
+    });
+    return unsub;
   }, []);
 
-  // Persist to localStorage (exclude timer — managed separately by useTimer hook)
+  // ── Persist to localStorage (always, even offline) ────────────────────────
   useEffect(() => {
     const { theme, projects, logs, movieDays, conceptualType, notifications } = state;
     setItem('app_state', { theme, projects, logs, movieDays, conceptualType, notifications });
   }, [state.theme, state.projects, state.logs, state.movieDays, state.conceptualType, state.notifications]);
 
-  // Apply theme class to <html>
+  // ── Debounced Firestore sync ──────────────────────────────────────────────
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      if (!syncEnabledRef.current || !userUidRef.current) return;
+      try {
+        const { theme, projects, logs, movieDays, conceptualType, notifications } = state;
+        await setDoc(
+          doc(db, 'users', userUidRef.current, 'data', 'appState'),
+          { theme, projects, logs, movieDays, conceptualType, notifications }
+        );
+      } catch (err) {
+        console.warn('Firestore sync failed (offline?):', err.message);
+      }
+    }, 1500);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [state.theme, state.projects, state.logs, state.movieDays, state.conceptualType, state.notifications]);
+
+  // ── Apply theme class to <html> ───────────────────────────────────────────
   useEffect(() => {
     const root = document.documentElement;
     if (state.theme === 'dark') {
@@ -154,8 +196,11 @@ export function AppProvider({ children }) {
     }
   }, [state.theme]);
 
+  const signIn = () => signInWithPopup(auth, googleProvider);
+  const logOut = () => signOut(auth);
+
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch, user, signIn, logOut }}>
       {children}
     </AppContext.Provider>
   );

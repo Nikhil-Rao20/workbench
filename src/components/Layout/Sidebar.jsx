@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Timer, BookOpen, FolderKanban,
-  BarChart3, Settings, ChevronLeft, ChevronRight, CalendarDays,
+  BarChart3, Settings, ChevronLeft, ChevronRight, CalendarDays, LogOut,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { friendlyDate, todayKey } from '../../utils/time';
@@ -20,7 +20,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, user, logOut } = useApp();
   const collapsed = state.sidebarCollapsed;
   const todayRotation = WEEKLY_ROTATION[new Date().getDay()];
 
@@ -98,6 +98,34 @@ export default function Sidebar() {
             </NavLink>
           ))}
         </nav>
+
+        {/* User + sign out */}
+        <AnimatePresence>
+          {!collapsed && user && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="mx-2 mb-2 p-2.5 rounded-xl flex items-center gap-2 border border-white/[0.06] bg-white/[0.02]"
+            >
+              {user.photoURL ? (
+                <img src={user.photoURL} alt={user.displayName} className="w-7 h-7 rounded-full shrink-0" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-[var(--accent-subtle)] flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-[var(--accent)]">{user.displayName?.[0]}</span>
+                </div>
+              )}
+              <p className="text-xs font-medium text-[var(--text-secondary)] truncate flex-1">{user.displayName?.split(' ')[0]}</p>
+              <button
+                onClick={logOut}
+                title="Sign out"
+                className="p-1 rounded-lg hover:bg-rose-500/10 text-[var(--text-muted)] hover:text-rose-400 transition-colors shrink-0"
+              >
+                <LogOut size={12} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Today's focus */}
         <AnimatePresence>

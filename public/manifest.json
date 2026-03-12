@@ -1,0 +1,19 @@
+{
+  "name": "Workbench",
+  "short_name": "Workbench",
+  "description": "Personal productivity tracker for PhD research — time blocks, projects, daily targets, and analytics.",
+  "start_url": "/workbench/",
+  "scope": "/workbench/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f5f8",
+  "theme_color": "#4b7bec",
+  "icons": [
+    {
+      "src": "/workbench/profile.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

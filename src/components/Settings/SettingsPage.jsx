@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Moon, Sun, Download, Trash2, RefreshCw, ExternalLink, Github } from 'lucide-react';
+import { Bell, Moon, Sun, Download, Trash2, RefreshCw, ExternalLink, Github, LogOut } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { clearAll } from '../../utils/storage';
@@ -54,7 +54,7 @@ function Row({ label, description, right }) {
 }
 
 export default function SettingsPage() {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, user, logOut } = useApp();
   const { permission, requestPermission } = useNotifications({
     enabled: state.notifications.enabled,
     warningMinutes: state.notifications.warningMinutes,
@@ -235,10 +235,32 @@ export default function SettingsPage() {
           <div className="text-xs text-[var(--text-muted)] space-y-1">
             <p className="font-semibold text-[var(--text-secondary)]">Workbench v1.0</p>
             <p>Personal productivity tracker built for research lab routines.</p>
-            <p className="mt-2">Built with React, Tailwind CSS, Framer Motion & Recharts.</p>
-            <p className="text-[10px] mt-2 text-[var(--text-muted)] opacity-60">All data stored locally in your browser.</p>
+            <p className="mt-2">Built with React, Tailwind CSS, Framer Motion &amp; Recharts.</p>
+            <p className="text-[10px] mt-2 opacity-60">Data synced to Firestore &bull; localStorage offline cache.</p>
           </div>
         </Section>
+
+        {/* Account */}
+        {user && (
+          <Section title="Account">
+            <div className="flex items-center gap-3 mb-4">
+              {user.photoURL && (
+                <img src={user.photoURL} alt={user.displayName} className="w-9 h-9 rounded-full" />
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{user.displayName}</p>
+                <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={logOut}
+              className="flex items-center gap-2 text-sm font-medium text-rose-400 hover:text-rose-300 transition-colors"
+            >
+              <LogOut size={14} />
+              Sign out
+            </button>
+          </Section>
+        )}
       </div>
     </motion.div>
   );
