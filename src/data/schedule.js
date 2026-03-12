@@ -159,7 +159,7 @@ export const TIME_BLOCKS = [
 ];
 
 // Which categories count toward "Research" daily minimum
-export const RESEARCH_BLOCK_IDS = ['research1', 'research2', 'research3'];
+export const RESEARCH_BLOCK_IDS = ['research1', 'research2', 'research3', 'night'];
 
 // Daily minimum targets (in minutes)
 export const DAILY_TARGETS = {
