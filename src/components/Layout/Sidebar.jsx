@@ -49,7 +49,7 @@ export default function Sidebar() {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <p className="text-sm font-bold text-[var(--text-primary)] leading-tight whitespace-nowrap">Lab Tracker</p>
+                <p className="text-base font-extrabold text-[var(--text-primary)] leading-tight whitespace-nowrap tracking-tight">Workbench</p>
                 <p className="text-[10px] text-[var(--text-muted)] whitespace-nowrap">Personal Productivity</p>
               </motion.div>
             )}

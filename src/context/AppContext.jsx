@@ -8,7 +8,7 @@ const AppContext = createContext(null);
 
 // ─── Initial state ────────────────────────────────────────────────────────────
 const INITIAL_STATE = {
-  theme: 'dark',
+  theme: 'light',
   projects: DEFAULT_PROJECTS,
   logs: {},           // { 'YYYY-MM-DD': LogEntry[] }
   movieDays: {},      // { 'YYYY-MM-DD': boolean }

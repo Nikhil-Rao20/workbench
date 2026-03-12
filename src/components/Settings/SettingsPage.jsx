@@ -233,7 +233,7 @@ export default function SettingsPage() {
         {/* About */}
         <Section title="About">
           <div className="text-xs text-[var(--text-muted)] space-y-1">
-            <p className="font-semibold text-[var(--text-secondary)]">Lab Tracker v1.0</p>
+            <p className="font-semibold text-[var(--text-secondary)]">Workbench v1.0</p>
             <p>Personal productivity tracker built for research lab routines.</p>
             <p className="mt-2">Built with React, Tailwind CSS, Framer Motion & Recharts.</p>
             <p className="text-[10px] mt-2 text-[var(--text-muted)] opacity-60">All data stored locally in your browser.</p>
