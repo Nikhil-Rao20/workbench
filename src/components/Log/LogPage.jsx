@@ -6,6 +6,7 @@ import { last7DayKeys, todayKey, dayOfWeekLabel, minToHHMM, dateToKey } from '..
 import { TIME_BLOCKS } from '../../data/schedule';
 import { format, parseISO } from 'date-fns';
 import AddEntryModal from './AddEntryModal';
+import LogDetailModal from './LogDetailModal';
 import clsx from 'clsx';
 
 const pageVariants = {
@@ -13,14 +14,15 @@ const pageVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-function LogEntryCard({ entry, project, block, onDelete, onEdit, isToday }) {
+function LogEntryCard({ entry, project, block, onDelete, onEdit, onView, isToday }) {
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] transition-colors group"
+      onClick={() => onView(entry)}
+      className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] transition-colors group cursor-pointer"
     >
       {/* Project dot */}
       <div
@@ -57,7 +59,7 @@ function LogEntryCard({ entry, project, block, onDelete, onEdit, isToday }) {
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
           {isToday && (
             <button
-              onClick={() => onEdit(entry)}
+              onClick={e => { e.stopPropagation(); onEdit(entry); }}
               className="text-[var(--text-muted)] hover:text-indigo-400 transition-colors"
               title="Edit"
             >
@@ -65,7 +67,7 @@ function LogEntryCard({ entry, project, block, onDelete, onEdit, isToday }) {
             </button>
           )}
           <button
-            onClick={() => onDelete(entry.id)}
+            onClick={e => { e.stopPropagation(); onDelete(entry.id); }}
             className="text-[var(--text-muted)] hover:text-rose-400 transition-colors"
             title="Delete"
           >
@@ -84,6 +86,7 @@ export default function LogPage() {
   const [filterProject, setFilterProject] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editEntry, setEditEntry] = useState(null);
+  const [viewEntry, setViewEntry] = useState(null);
 
   const dayLogs = state.logs[selectedDate] || [];
 
@@ -239,6 +242,7 @@ export default function LogPage() {
                       block={block}
                       onDelete={handleDelete}
                       onEdit={setEditEntry}
+                      onView={setViewEntry}
                       isToday={selectedDate === todayKey()}
                     />
                   );
@@ -258,6 +262,21 @@ export default function LogPage() {
             editDateKey={selectedDate}
           />
         )}
+        {viewEntry && (() => {
+          const vProject = state.projects.find(p => p.id === viewEntry.projectId);
+          const vBlock = TIME_BLOCKS.find(b => b.id === viewEntry.blockId);
+          return (
+            <LogDetailModal
+              entry={viewEntry}
+              project={vProject}
+              block={vBlock}
+              dateKey={selectedDate}
+              isToday={selectedDate === todayKey()}
+              onClose={() => setViewEntry(null)}
+              onEdit={setEditEntry}
+            />
+          );
+        })()}
       </AnimatePresence>
     </motion.div>
   );
