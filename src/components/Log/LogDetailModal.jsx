@@ -23,7 +23,7 @@ export default function LogDetailModal({ entry, project, block, dateKey, isToday
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-        className="relative z-10 w-full max-w-md glass-card overflow-hidden"
+        className="relative z-10 w-full max-w-md glass-card overflow-hidden max-h-[90vh] flex flex-col"
       >
         {/* Color accent bar */}
         <div
@@ -35,7 +35,7 @@ export default function LogDetailModal({ entry, project, block, dateKey, isToday
           }}
         />
 
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
           {/* Header */}
           <div className="flex items-start justify-between gap-3 mb-5">
             <div className="flex items-start gap-3 min-w-0">
